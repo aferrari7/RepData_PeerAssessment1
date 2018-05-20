@@ -12,51 +12,79 @@ output:
 
 ###Below is the code used to import the data into r:
 
-```{r}
+
+```r
 activity_data <- read.csv("activity.csv", header = TRUE)
 ```
 
 ###Afterwards, I ran the following code to sum the steps by date
 
-```{r}
+
+```r
 agg_steps <- aggregate(steps~date, data = activity_data, FUN = sum, na.rm=TRUE)
 ```
 
 ###And here is a histogram showing the number of days that fall in a range of total steps 
 
-```{r}
+
+```r
 hist(as.numeric(agg_steps$steps), breaks = 8,col="red",xlab="Total Steps",ylab="Number of Days", main="Steps Taken Per Day")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
 ## What is mean total number of steps taken per day?
 
 ###Below is the code used and results for the mean and median of total steps by day. As you can seem the mean is slightly higher than the median. 
-```{r}
+
+```r
 mean(agg_steps$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(agg_steps$steps)
+```
+
+```
+## [1] 10765
 ```
 
 
 ## What is the average daily activity pattern?
 ###In order to check the average daily activity pattern, I grouped the data by interval instead of date, with the below code:
 
-```{r}
+
+```r
 agg_interval <- aggregate(steps~interval, data = activity_data, FUN = mean, na.rm=TRUE)
 ```
 
 ###Then plotted it with the following line chart. As the data moves from left to right, it progresses through the day:
-```{r}
+
+```r
 plot(agg_interval$steps ~ agg_interval$interval, type = "l", xlab="Interval", ylab ="Average Steps", main = "Average Steps Per Interval")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
 ###Here is the code and results for the max interval:
-```{r}
+
+```r
 agg_interval[which.max(agg_interval$steps),]
+```
+
+```
+##     interval    steps
+## 104      835 206.1698
 ```
 
 ## Imputing missing values
 ###Since NA values can sometimes throw data off, I tried to compensate a bit by replacing NAs with an average for that time interval (across all days). I used the following code:
-```{r}
+
+```r
 library(plyr)
 
 #create column for interval average, and append it to dataset
@@ -67,25 +95,66 @@ activity_data$steps[is.na(activity_data$steps)] <- activity_data$steps_avg[is.na
 ```
 
 ###I then aggregated the new data set, and plotted it. As you can see, the new histogram shows a higher peak in the middle, and skinnier tails:
-```{r}
+
+```r
 agg_steps_rep <- aggregate(steps~date, data = activity_data, FUN = sum, na.rm=TRUE)
 
 hist(as.numeric(agg_steps_rep$steps), breaks = 8,col="blue",xlab="Total Steps",ylab="Number of Days", main="Steps Taken Per Day")
 ```
 
-###And the mean is now equal to the median:
-```{r}
-mean(agg_steps_rep$steps)
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
+###And the mean is now equal to the median:
+
+```r
+mean(agg_steps_rep$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(agg_steps_rep$steps)
+```
+
+```
+## [1] 10766.19
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
 ###To compare weekday and weekend activity, I first used dplyr to add a day type column:
 
-```{r}
-library(dplyr)
 
+```r
+library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:plyr':
+## 
+##     arrange, count, desc, failwith, id, mutate, rename, summarise,
+##     summarize
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 activity_data$day = weekdays(as.Date(activity_data$date))
 
 activity_data$day_type <- 
@@ -99,7 +168,8 @@ activity_data$day_type <-
 ```
 
 ###I then created seperate datasets for each, and plotted them on the same graph:
-```{r}
+
+```r
 activity_data_weekday <- activity_data[activity_data$day_type == "weekday",]
 
 activity_data_weekend <- activity_data[activity_data$day_type == "weekend",]
@@ -112,6 +182,8 @@ plot(agg_interval_weekday$steps ~ agg_interval_weekday$interval, type = "l", xla
 lines(agg_interval_weekend$steps ~ agg_interval_weekend$interval, col="purple")
 legend("topright",pch=1,col=c("green","purple"), lty=1,legend = c("Weekdays","Weekend"))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 
 
 
